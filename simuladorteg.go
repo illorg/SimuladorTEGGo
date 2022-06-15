@@ -15,7 +15,7 @@ import (
 
 var fichas_ataque int = 0
 var fichas_defensa int = 0
-var simulaciones int = 100000
+var simulaciones int = 1000000
 var vict_ataque int = 0
 var vict_defensa int = 0
 var proceso_porct int = 0
