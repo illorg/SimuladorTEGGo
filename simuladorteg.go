@@ -15,7 +15,7 @@ import (
 
 var fichas_ataque int = 0
 var fichas_defensa int = 0
-var simulaciones int = 1000000
+var simulaciones int = 0
 var vict_ataque int = 0
 var vict_defensa int = 0
 var proceso_porct int = 0
@@ -25,6 +25,7 @@ var proceso_porct int = 0
 //var simulaciones_ant int = 0
 
 func simula(sim int) {
+
 	for simulacion := 1; simulacion <= sim; simulacion++ { // Ciclo for de simulacciones : por defect 10K
 		if Jugar(fichas_ataque, fichas_defensa) { // llama funcion jugar, envia cant fichas, devuelve ganador
 			vict_ataque += 1
@@ -32,8 +33,8 @@ func simula(sim int) {
 			vict_defensa += 1
 		}
 
-		//muestreo(simulaciones)
 	}
+	fmt.Println("goroutine realizo operaciones", (vict_ataque + vict_defensa))
 }
 func Jugar(fatq int, fdef int) bool {
 	cant_d_ataque := 0
@@ -92,33 +93,35 @@ func tirar_dados(cant_d_ataque int, cant_d_defensa int) ([]int, []int) {
 	return dados_ataque, dados_defensa
 }
 func main() {
+	/// leer argumentos  en el llamado
 
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Ingrese Fichas Ataque")
-	scanner.Scan()
-	fichas_ataque, _ = strconv.Atoi(scanner.Text())
-	//fichas_ataque = 12
-	fmt.Println("Ingrese Fichas Defensa")
-	scanner.Scan()
-	fichas_defensa, _ = strconv.Atoi(scanner.Text())
-	//fichas_defensa = 6 //temporal . sacar!!
+	if len(os.Args[1:]) > 0 {
+		fichas_ataque, _ = strconv.Atoi(os.Args[1])
+		fichas_defensa, _ = strconv.Atoi(os.Args[2])
+		simulaciones, _ = strconv.Atoi(os.Args[3])
+	} else {
+		scanner := bufio.NewScanner(os.Stdin)
+		fmt.Println("Ingrese Fichas Ataque")
+		scanner.Scan()
+		fichas_ataque, _ = strconv.Atoi(scanner.Text())
+		fmt.Println("Ingrese Fichas Defensa")
+		scanner.Scan()
+		fichas_defensa, _ = strconv.Atoi(scanner.Text())
+	}
 
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
-	for i := 0; i < 4; i++ {
-		go simula(simulaciones / 4.0)
+	for i := 0; i < 1; i++ {
+		go simula(simulaciones / 1.0)
 	}
 	for (vict_ataque + vict_defensa) < (simulaciones - 20) {
 		if (float64(vict_ataque+vict_defensa) / float64(simulaciones) * 100) >= float64(proceso_porct+1) { // porcentaje de calculo simulaciones
 			proceso_porct = int(float64(vict_ataque+vict_defensa) / float64(simulaciones) * 100)
-			//muestreo(simulacion) # llamo a muestreo
 			fmt.Println("Simulando: %", proceso_porct)
 			time.Sleep(3000 * time.Millisecond)
 		}
 	}
-
-	//fmt.Scanln()
 	porcent_vict := float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
 	porcent_derr := float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
 	fmt.Println("Tiempo consumido en el cálculo : ")
@@ -147,7 +150,7 @@ func main() {
 	fmt.Print("Conexion establecida con Base de datos en MistralHome!!")
 	dbdata := db
 	fmt.Println(dbdata.Driver())
-	insertarRegistros, err := db.Prepare("INSERT INTO registro (fecha, simulaciones, fichas_ataque, fichas_defensa,	porct_victoria_ataque, porct_victoria_defensa) VALUES(?,?,?,?,?,?)")
+	insertarRegistros, err := db.Prepare("INSERT INTO registro (fecha, simulaciones, fichas_ataque, fichas_defensa, porct_victoria_ataque, porct_victoria_defensa) VALUES(?,?,?,?,?,?)")
 	// manejar error
 	if err != nil {
 		panic(err)
