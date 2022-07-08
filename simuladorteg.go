@@ -24,17 +24,22 @@ var proceso_porct int = 0
 //var victorias_ant int = 0
 //var simulaciones_ant int = 0
 
-func simula(sim int) {
-
-	for simulacion := 1; simulacion <= sim; simulacion++ { // Ciclo for de simulacciones : por defect 10K
+func simula(sim int, id int) {
+	a := 0
+	d := 0
+	for simulacion := 1; a+d < sim; simulacion++ { // Ciclo for de simulacciones : por defect 10K
 		if Jugar(fichas_ataque, fichas_defensa) { // llama funcion jugar, envia cant fichas, devuelve ganador
-			vict_ataque += 1
+			a += 1
+
 		} else {
-			vict_defensa += 1
+			d += 1
+
 		}
 
 	}
-	fmt.Println("goroutine realizo operaciones", (vict_ataque + vict_defensa))
+	vict_ataque = vict_ataque + a
+	vict_defensa = vict_defensa + d
+	fmt.Println("goroutine ID:", id, "realizo operaciones", (a + d))
 }
 func Jugar(fatq int, fdef int) bool {
 	cant_d_ataque := 0
@@ -112,8 +117,9 @@ func main() {
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
-	for i := 0; i < 1; i++ {
-		go simula(simulaciones / 1.0)
+
+	for i := 1; i < 5; i++ {
+		go simula(simulaciones/4.0, i)
 	}
 	for (vict_ataque + vict_defensa) < (simulaciones - 20) {
 		if (float64(vict_ataque+vict_defensa) / float64(simulaciones) * 100) >= float64(proceso_porct+1) { // porcentaje de calculo simulaciones
@@ -130,7 +136,7 @@ func main() {
 	fmt.Println("victoria defensa: ", vict_defensa, " %", porcent_derr)
 	fmt.Println("el calculo tardó: ", tiempofinal.Sub(comienzo))
 
-	// base de datos
+	///////////// BASE DE DATOS //////////////////
 	// 1) creo objeto para conectarme
 	db, err := sql.Open("mysql", "root:pcshoprg@tcp(179.62.90.59:3306)/SimuladorTeg")
 
