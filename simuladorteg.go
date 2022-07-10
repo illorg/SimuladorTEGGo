@@ -15,10 +15,11 @@ import (
 
 var fichas_ataque int = 0
 var fichas_defensa int = 0
-var simulaciones int = 0
+var simulaciones int = 10000
 var vict_ataque int = 0
 var vict_defensa int = 0
 var proceso_porct int = 0
+var hilosCompletos [4]bool
 
 //muestra = []
 //var victorias_ant int = 0
@@ -33,13 +34,17 @@ func simula(sim int, id int) {
 
 		} else {
 			d += 1
-
+		}
+		if id == 1 && (float64(simulacion)/float64(sim)*100) > float64(proceso_porct+1) {
+			proceso_porct = int(float64(simulacion) / float64(sim) * 100)
 		}
 
 	}
 	vict_ataque = vict_ataque + a
 	vict_defensa = vict_defensa + d
 	fmt.Println("goroutine ID:", id, "realizo operaciones", (a + d))
+	hilosCompletos[id] = true
+
 }
 func Jugar(fatq int, fdef int) bool {
 	cant_d_ataque := 0
@@ -118,16 +123,17 @@ func main() {
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
 
-	for i := 1; i < 5; i++ {
+	for i := 0; i < 4; i++ {
 		go simula(simulaciones/4.0, i)
 	}
-	for (vict_ataque + vict_defensa) < (simulaciones - 20) {
-		if (float64(vict_ataque+vict_defensa) / float64(simulaciones) * 100) >= float64(proceso_porct+1) { // porcentaje de calculo simulaciones
-			proceso_porct = int(float64(vict_ataque+vict_defensa) / float64(simulaciones) * 100)
-			fmt.Println("Simulando: %", proceso_porct)
-			time.Sleep(3000 * time.Millisecond)
-		}
+
+	for !hilosCompletos[0] || !hilosCompletos[1] || !hilosCompletos[2] || !hilosCompletos[3] {
+
+		fmt.Println("Simulando: %", proceso_porct)
+		time.Sleep(250 * time.Millisecond)
+
 	}
+
 	porcent_vict := float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
 	porcent_derr := float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
 	fmt.Println("Tiempo consumido en el cálculo : ")
@@ -154,8 +160,7 @@ func main() {
 	}
 
 	fmt.Print("Conexion establecida con Base de datos en MistralHome!!")
-	dbdata := db
-	fmt.Println(dbdata.Driver())
+
 	insertarRegistros, err := db.Prepare("INSERT INTO registro (fecha, simulaciones, fichas_ataque, fichas_defensa, porct_victoria_ataque, porct_victoria_defensa) VALUES(?,?,?,?,?,?)")
 	// manejar error
 	if err != nil {
