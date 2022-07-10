@@ -21,10 +21,6 @@ var vict_defensa int = 0
 var proceso_porct int = 0
 var hilosCompletos [4]bool
 
-//muestra = []
-//var victorias_ant int = 0
-//var simulaciones_ant int = 0
-
 func simula(sim int, id int) {
 	a := 0
 	d := 0
@@ -122,18 +118,18 @@ func main() {
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
-
+	/// Creo 4 Goroutines///
 	for i := 0; i < 4; i++ {
 		go simula(simulaciones/4.0, i)
 	}
-
+	/// Bucle para controlar el avance de los Goroutines///
 	for !hilosCompletos[0] || !hilosCompletos[1] || !hilosCompletos[2] || !hilosCompletos[3] {
 
 		fmt.Println("Simulando: %", proceso_porct)
 		time.Sleep(250 * time.Millisecond)
 
 	}
-
+	//// Reporta resultados en pantalla////
 	porcent_vict := float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
 	porcent_derr := float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
 	fmt.Println("Tiempo consumido en el cálculo : ")
