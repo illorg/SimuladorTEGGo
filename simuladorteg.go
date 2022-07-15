@@ -13,15 +13,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var fichas_ataque int = 0
-var fichas_defensa int = 0
-var simulaciones int = 10000
-var vict_ataque int = 0
-var vict_defensa int = 0
-var proceso_porct int = 0
-var hilosCompletos [4]bool
+var fichas_ataque int = 0    // fichas que se jugaran en ataque
+var fichas_defensa int = 0   // fichas qie se jugaran en defensa
+var simulaciones int = 10000 // cantidad de simulaciones. por defecto 100000
+var vict_ataque int = 0      // contador de veces que gana el ataque
+var vict_defensa int = 0     // contador de veces que gana la defensa
+var proceso_porct int = 0    // porcentaje (nro entero) de avance de la simulacion
+var hilosCompletos [4]bool   // bandera que indica la finalizacion de las 4 gorutines
 
-func simula(sim int, id int) {
+func simula(sim int, id int) { //funcion simula llamada 4 veces por goroutines
 	a := 0
 	d := 0
 	for simulacion := 1; a+d < sim; simulacion++ { // Ciclo for de simulacciones : por defect 10K
@@ -31,7 +31,7 @@ func simula(sim int, id int) {
 		} else {
 			d += 1
 		}
-		if id == 1 && (float64(simulacion)/float64(sim)*100) > float64(proceso_porct+1) {
+		if id == 1 && (float64(simulacion)/float64(sim)*100) > float64(proceso_porct+1) { // actualiza porcentaje de avance( por ahora solo hilo nro1)
 			proceso_porct = int(float64(simulacion) / float64(sim) * 100)
 		}
 
@@ -42,7 +42,7 @@ func simula(sim int, id int) {
 	hilosCompletos[id] = true
 
 }
-func Jugar(fatq int, fdef int) bool {
+func Jugar(fatq int, fdef int) bool { // Funcion jugar se ejecuta hasta que se acaben las fichas
 	cant_d_ataque := 0
 	cant_d_defensa := 0
 	lanzamiento := [2][]int{{0, 0, 0}, {0, 0, 0}}
@@ -118,6 +118,7 @@ func main() {
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
+
 	/// Creo 4 Goroutines///
 	for i := 0; i < 4; i++ {
 		go simula(simulaciones/4.0, i)
