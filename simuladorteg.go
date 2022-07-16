@@ -119,7 +119,7 @@ func main() {
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
 
-	/// Creo 4 Goroutines///
+	/// Creo 4 Goroutines que se reparten el nro total de simulaciones///
 	for i := 0; i < 4; i++ {
 		go simula(simulaciones/4.0, i)
 	}
