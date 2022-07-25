@@ -22,8 +22,7 @@ var proceso_porct int = 0    // porcentaje (nro entero) de avance de la simulaci
 var hilosCompletos [4]bool   // bandera que indica la finalizacion de las 4 gorutines
 
 func simula(sim int, id int) { //funcion simula llamada 4 veces por goroutines
-	a := 0
-	d := 0
+	a, d := 0, 0
 	for simulacion := 1; a+d < sim; simulacion++ { // Ciclo for de simulacciones : por defect 10K
 		if Jugar(fichas_ataque, fichas_defensa) { // llama funcion jugar, envia cant fichas, devuelve ganador
 			a += 1
@@ -133,7 +132,6 @@ func main() {
 	//// Reporta resultados en pantalla////
 	porcent_vict := float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
 	porcent_derr := float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
-	fmt.Println("Tiempo consumido en el cálculo : ")
 	tiempofinal := time.Now()
 	fmt.Println("Victoria ataque: ", vict_ataque, " %", porcent_vict)
 	fmt.Println("victoria defensa: ", vict_defensa, " %", porcent_derr)
