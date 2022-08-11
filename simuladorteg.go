@@ -1,13 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"math/rand"
-	"os"
 	"sort"
-	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +17,8 @@ var vict_ataque int = 0      // contador de veces que gana el ataque
 var vict_defensa int = 0     // contador de veces que gana la defensa
 var proceso_porct int = 0    // porcentaje (nro entero) de avance de la simulacion
 var hilosCompletos [4]bool   // bandera que indica la finalizacion de las 4 gorutines
+var porcent_vict float32
+var porcent_derr float32
 
 func simula(sim int, id int) { //funcion simula llamada 4 veces por goroutines
 	a, d := 0, 0
@@ -97,59 +96,33 @@ func tirar_dados(cant_d_ataque int, cant_d_defensa int) ([]int, []int) {
 	sort.Sort(sort.Reverse(sort.IntSlice(dados_defensa)))
 	return dados_ataque, dados_defensa
 }
-func main() {
+func Maestro(fatq int, fdef int, simus int) {
 	/// leer argumentos  en el llamado
 
-	if len(os.Args[1:]) > 0 {
-		fichas_ataque, _ = strconv.Atoi(os.Args[1])
-		fichas_defensa, _ = strconv.Atoi(os.Args[2])
-		simulaciones, _ = strconv.Atoi(os.Args[3])
-	} else {
-		scanner := bufio.NewScanner(os.Stdin)
-		fmt.Println("Ingrese Fichas Ataque")
-		scanner.Scan()
-		fichas_ataque, _ = strconv.Atoi(scanner.Text())
-		fmt.Println("Ingrese Fichas Defensa")
-		scanner.Scan()
-		fichas_defensa, _ = strconv.Atoi(scanner.Text())
-	}
-
-	fmt.Println(fichas_ataque)
-	fmt.Println(fichas_defensa)
-	comienzo := time.Now()
-
 	/// Creo 4 Goroutines que se reparten el nro total de simulaciones///
-	for i := 0; i < 4; i++ {
-		go simula(simulaciones/4.0, i)
-	}
 	/// Bucle para controlar el avance de los Goroutines///
-	for !hilosCompletos[0] || !hilosCompletos[1] || !hilosCompletos[2] || !hilosCompletos[3] {
-
-		fmt.Println("Simulando: %", proceso_porct)
-		time.Sleep(250 * time.Millisecond)
-
-	}
 	//// Reporta resultados en pantalla////
-	porcent_vict := float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
-	porcent_derr := float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
-	tiempofinal := time.Now()
-	fmt.Println("Victoria ataque: ", vict_ataque, " %", porcent_vict)
-	fmt.Println("victoria defensa: ", vict_defensa, " %", porcent_derr)
-	fmt.Println("el calculo tardó: ", tiempofinal.Sub(comienzo))
+	//porcent_vict, porcent_derr := SimularTeg()
+	SimularTeg(fatq, fdef, simus)
+	grabarEnBaseDeDatos()
+}
 
+func grabarEnBaseDeDatos() {
 	///////////// BASE DE DATOS //////////////////
 	// 1) creo objeto para conectarme
+	// manejo si hay error
+	// comando Ping returns error, si la base no responde.
+	// manejar si hay error
+	// manejar error
+	// cerrar y liberar base de datos
 	db, err := sql.Open("mysql", "root:pcshoprg@tcp(179.62.90.59:3306)/SimuladorTeg")
 
-	// manejo si hay error
 	if err != nil {
 		panic(err)
 	}
 
-	// comando Ping returns error, si la base no responde.
 	err = db.Ping()
 
-	// manejar si hay error
 	if err != nil {
 		panic(err)
 	}
@@ -157,15 +130,44 @@ func main() {
 	fmt.Print("Conexion establecida con Base de datos en MistralHome!!")
 
 	insertarRegistros, err := db.Prepare("INSERT INTO registro (fecha, simulaciones, fichas_ataque, fichas_defensa, porct_victoria_ataque, porct_victoria_defensa) VALUES(?,?,?,?,?,?)")
-	// manejar error
+
 	if err != nil {
 		panic(err)
 	}
 	insertarRegistros.Exec(time.Now(), simulaciones, fichas_ataque, fichas_defensa, porcent_vict, porcent_derr)
 
-	// cerrar y liberar base de datos
 	if err == nil {
 		defer fmt.Println("Base cerrada exitosamente", time.Now())
 	}
 	defer db.Close()
+}
+
+func SimularTeg(fatq int, fdef int, simus int) {
+
+	fichas_ataque = fatq
+	fichas_defensa = fdef
+	simulaciones = simus
+
+	fmt.Println(fichas_ataque)
+	fmt.Println(fichas_defensa)
+	comienzo := time.Now()
+
+	for i := 0; i < 4; i++ {
+		go simula(simulaciones/4.0, i)
+	}
+
+	for !hilosCompletos[0] || !hilosCompletos[1] || !hilosCompletos[2] || !hilosCompletos[3] {
+
+		fmt.Println("Simulando: %", proceso_porct)
+		time.Sleep(250 * time.Millisecond)
+
+	}
+
+	porcent_vict = float32(float64(vict_ataque) / float64(simulaciones) * 100.0)
+	porcent_derr = float32(float64(vict_defensa) / float64(simulaciones) * 100.0)
+	tiempofinal := time.Now()
+	fmt.Println("Victoria ataque: ", vict_ataque, " %", porcent_vict)
+	fmt.Println("victoria defensa: ", vict_defensa, " %", porcent_derr)
+	fmt.Println("el calculo tardó: ", tiempofinal.Sub(comienzo))
+
 }

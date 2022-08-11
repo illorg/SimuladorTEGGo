@@ -1,0 +1,15 @@
+<!-- forms.html -->
+{{if .Success}}
+    <h1>Ejecutando simulaciones....!!!</h1>
+{{else}}
+    <h1>Formulario para simulador de posibilidades TEG</h1>
+    <form method="POST">
+        <label>Fichas en ataque:</label><br />
+        <input type="text" name="fichasataque"><br />
+        <label>Fichas en defensa:</label><br />
+        <input type="text" name="fichasdefensa"><br />
+        <label>Cantidad de Simulaciones:</label><br />
+        <textarea name="simulaciones"></textarea><br />
+        <input type="submit">
+    </form>
+{{end}}
