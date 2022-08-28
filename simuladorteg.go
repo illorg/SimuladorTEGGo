@@ -96,16 +96,6 @@ func tirar_dados(cant_d_ataque int, cant_d_defensa int) ([]int, []int) {
 	sort.Sort(sort.Reverse(sort.IntSlice(dados_defensa)))
 	return dados_ataque, dados_defensa
 }
-func Maestro(fatq int, fdef int, simus int) {
-	/// leer argumentos  en el llamado
-
-	/// Creo 4 Goroutines que se reparten el nro total de simulaciones///
-	/// Bucle para controlar el avance de los Goroutines///
-	//// Reporta resultados en pantalla////
-	//porcent_vict, porcent_derr := SimularTeg()
-	SimularTeg(fatq, fdef, simus)
-	grabarEnBaseDeDatos()
-}
 
 func grabarEnBaseDeDatos() {
 	///////////// BASE DE DATOS //////////////////
@@ -115,7 +105,7 @@ func grabarEnBaseDeDatos() {
 	// manejar si hay error
 	// manejar error
 	// cerrar y liberar base de datos
-	db, err := sql.Open("mysql", "root:pcshoprg@tcp(179.62.90.59:3306)/SimuladorTeg")
+	db, err := sql.Open("mysql", "root:pcshoprg@tcp(179.62.92.205:3306)/SimuladorTeg")
 
 	if err != nil {
 		panic(err)
@@ -142,11 +132,13 @@ func grabarEnBaseDeDatos() {
 	defer db.Close()
 }
 
-func SimularTeg(fatq int, fdef int, simus int) {
+func SimularTeg(fatq int, fdef int, simus int) (int, int, float32, string) {
 
 	fichas_ataque = fatq
 	fichas_defensa = fdef
 	simulaciones = simus
+	vict_ataque, vict_defensa, proceso_porct = 0, 0, 0
+	hilosCompletos[2], hilosCompletos[2], hilosCompletos[2], hilosCompletos[3] = false, false, false, false
 
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
@@ -169,5 +161,7 @@ func SimularTeg(fatq int, fdef int, simus int) {
 	fmt.Println("Victoria ataque: ", vict_ataque, " %", porcent_vict)
 	fmt.Println("victoria defensa: ", vict_defensa, " %", porcent_derr)
 	fmt.Println("el calculo tardó: ", tiempofinal.Sub(comienzo))
+	grabarEnBaseDeDatos()
+	return vict_ataque, vict_defensa, porcent_vict, tiempofinal.Sub(comienzo).String()
 
 }

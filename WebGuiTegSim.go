@@ -7,10 +7,22 @@ import (
 	"strconv"
 )
 
+var victoriasataque int
+var victoriasdefensa int
+var porcentajevictoria float32
+var tiempo string
+
 type DetallesConsulta struct {
 	FichasAtaque  string
 	FichasDefensa string
 	Simulaciones  string
+}
+type ResultadosSim struct {
+	Success           bool
+	VictoriasLabel    int
+	DerrotasLabel     int
+	PorcentajeLabel   float32
+	SimulacionesLabel int
 }
 
 func main() {
@@ -30,14 +42,24 @@ func main() {
 
 		// do something with details
 		//_ = details
-
-		tmpl.Execute(w, struct{ Success bool }{true})
-		fmt.Println(details)
 		a, _ := strconv.Atoi(details.FichasAtaque)
 		b, _ := strconv.Atoi(details.FichasDefensa)
 		s, _ := strconv.Atoi(details.Simulaciones)
 
-		Maestro(a, b, s)
+		victoriasataque, victoriasdefensa, porcentajevictoria, tiempo = SimularTeg(a, b, s)
+		resultadosHtml := ResultadosSim{Success: true, VictoriasLabel: victoriasataque, DerrotasLabel: victoriasdefensa,
+			PorcentajeLabel: porcentajevictoria, SimulacionesLabel: s}
+		tmpl.Execute(w, resultadosHtml)
+		fmt.Println(details)
+
+		//p := ResultadosSim{VictoriasLabel: victoriasataque, PorcentajeLabel: porcentajevictoria}
+		//v := strconv.Itoa(victoriasataque)
+		//d := strconv.Itoa(victoriasdefensa)
+
+		//fmt.Fprintln(w, "Victoria Ataque : ", victoriasataque)
+		//fmt.Fprintln(w, "Victoria defensa: ", victoriasdefensa)
+		//fmt.Fprintln(w, "El Calculo llevó: ", tiempo)
+		//fmt.Fprintln(w, p)
 
 	})
 

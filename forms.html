@@ -1,6 +1,11 @@
 <!-- forms.html -->
 {{if .Success}}
-    <h1>Ejecutando simulaciones....!!!</h1>
+    <h1>Simulación finalizada....!!!</h1>
+    <h2>Las posibilidades de victoria dan: % {{ .PorcentajeLabel}}</h2>
+    <h3>Nro toal de victorias {{ .VictoriasLabel}}</h3>
+    <h3>Las simulaciones totales fueron {{ .SimulacionesLabel}}</h3>
+    
+        
 {{else}}
     <h1>Formulario para simulador de posibilidades TEG</h1>
     <form method="POST">
@@ -12,4 +17,5 @@
         <textarea name="simulaciones"></textarea><br />
         <input type="submit">
     </form>
+
 {{end}}
