@@ -100,19 +100,13 @@ func tirar_dados(cant_d_ataque int, cant_d_defensa int) ([]int, []int) {
 func grabarEnBaseDeDatos() {
 	///////////// BASE DE DATOS //////////////////
 	// 1) creo objeto para conectarme
-	// manejo si hay error
-	// comando Ping returns error, si la base no responde.
-	// manejar si hay error
-	// manejar error
-	// cerrar y liberar base de datos
 	db, err := sql.Open("mysql", "root:pcshoprg@tcp(179.62.92.205:3306)/SimuladorTeg")
 
-	if err != nil {
+	if err != nil { // manejo si hay error
 		panic(err)
 	}
 
-	err = db.Ping()
-
+	err = db.Ping() // comando Ping returns error, si la base no responde.
 	if err != nil {
 		panic(err)
 	}
@@ -121,7 +115,7 @@ func grabarEnBaseDeDatos() {
 
 	insertarRegistros, err := db.Prepare("INSERT INTO registro (fecha, simulaciones, fichas_ataque, fichas_defensa, porct_victoria_ataque, porct_victoria_defensa) VALUES(?,?,?,?,?,?)")
 
-	if err != nil {
+	if err != nil { // manejar error
 		panic(err)
 	}
 	insertarRegistros.Exec(time.Now(), simulaciones, fichas_ataque, fichas_defensa, porcent_vict, porcent_derr)
@@ -129,17 +123,17 @@ func grabarEnBaseDeDatos() {
 	if err == nil {
 		defer fmt.Println("Base cerrada exitosamente", time.Now())
 	}
-	defer db.Close()
+	defer db.Close() // cerrar y liberar base de datos
 }
 
+// MAIN_____________________
 func SimularTeg(fatq int, fdef int, simus int) (int, int, float32, string) {
-
 	fichas_ataque = fatq
 	fichas_defensa = fdef
 	simulaciones = simus
 	vict_ataque, vict_defensa, proceso_porct = 0, 0, 0
-	hilosCompletos[2], hilosCompletos[2], hilosCompletos[2], hilosCompletos[3] = false, false, false, false
 
+	hilosCompletos[2], hilosCompletos[2], hilosCompletos[2], hilosCompletos[3] = false, false, false, false
 	fmt.Println(fichas_ataque)
 	fmt.Println(fichas_defensa)
 	comienzo := time.Now()
@@ -152,7 +146,6 @@ func SimularTeg(fatq int, fdef int, simus int) (int, int, float32, string) {
 
 		fmt.Println("Simulando: %", proceso_porct)
 		time.Sleep(250 * time.Millisecond)
-
 	}
 
 	porcent_vict = float32(float64(vict_ataque) / float64(simulaciones) * 100.0)

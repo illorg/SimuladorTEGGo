@@ -23,6 +23,7 @@ type ResultadosSim struct {
 	DerrotasLabel     int
 	PorcentajeLabel   float32
 	SimulacionesLabel int
+	TiempoLabel       string
 }
 
 func main() {
@@ -40,26 +41,15 @@ func main() {
 			Simulaciones:  r.FormValue("simulaciones"),
 		}
 
-		// do something with details
-		//_ = details
 		a, _ := strconv.Atoi(details.FichasAtaque)
 		b, _ := strconv.Atoi(details.FichasDefensa)
 		s, _ := strconv.Atoi(details.Simulaciones)
 
 		victoriasataque, victoriasdefensa, porcentajevictoria, tiempo = SimularTeg(a, b, s)
 		resultadosHtml := ResultadosSim{Success: true, VictoriasLabel: victoriasataque, DerrotasLabel: victoriasdefensa,
-			PorcentajeLabel: porcentajevictoria, SimulacionesLabel: s}
+			PorcentajeLabel: porcentajevictoria, SimulacionesLabel: s, TiempoLabel: tiempo}
 		tmpl.Execute(w, resultadosHtml)
 		fmt.Println(details)
-
-		//p := ResultadosSim{VictoriasLabel: victoriasataque, PorcentajeLabel: porcentajevictoria}
-		//v := strconv.Itoa(victoriasataque)
-		//d := strconv.Itoa(victoriasdefensa)
-
-		//fmt.Fprintln(w, "Victoria Ataque : ", victoriasataque)
-		//fmt.Fprintln(w, "Victoria defensa: ", victoriasdefensa)
-		//fmt.Fprintln(w, "El Calculo llevó: ", tiempo)
-		//fmt.Fprintln(w, p)
 
 	})
 
